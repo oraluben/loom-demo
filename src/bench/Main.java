@@ -1,18 +1,30 @@
 package bench;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        assert args.length == 3;
+    private static ContinuationScope FOO = new ContinuationScope("FOO");
 
-        int
-                start = Integer.parseInt(args[0]),
-                end = Integer.parseInt(args[1]),
-                step = Integer.parseInt(args[2]);
+    public static void main(String[] args) {
+        System.out.println(run(1_000_000));
+    }
 
-        for (int iteration = start; iteration <= end; iteration += step) {
-            System.out.println(iteration + " " +
-                    Bench.run(Bench::nopVirtual, iteration) + " " +
-                    Bench.run(Bench::nop, iteration));
+    private static long run(int i) {
+        Continuation cont;
+        for (int j = 0; j < 2000; j++) {
+            cont = new Continuation(FOO, () -> {
+            });
+            while (!cont.isDone()) {
+                cont.run();
+            }
         }
+
+        long tStart = System.nanoTime();
+        for (int j = 0; j < i; j++) {
+            cont = new Continuation(FOO, () -> {
+            });
+            while (!cont.isDone()) {
+                cont.run();
+            }
+        }
+        return (System.nanoTime() - tStart) / i;
     }
 }

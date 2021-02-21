@@ -14,7 +14,7 @@ def verify_get_loom(java='java'):
 
 
 def run_plot(start, end, step, title, out):
-    r = run([verify_get_loom('java'), 'bench/Main'] + [str(i) for i in (start, end, step)],
+    r = run([verify_get_loom('java'), 'bench/loom/Main'] + [str(i) for i in (start, end, step)],
             cwd='src', stdout=PIPE)
     assert r.returncode == 0
     times = [
@@ -30,5 +30,5 @@ def run_plot(start, end, step, title, out):
 
 
 if __name__ == '__main__':
-    assert run([verify_get_loom('javac'), 'bench/Main.java'], cwd='src').returncode == 0
+    assert run([verify_get_loom('javac'), 'bench/loom/Main.java'], cwd='src').returncode == 0
     run_plot(100, 10000, 100, 'thread vs vthread on simple nop loop', 'full.png')

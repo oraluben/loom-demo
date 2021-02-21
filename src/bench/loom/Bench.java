@@ -1,4 +1,4 @@
-package bench;
+package bench.loom;
 
 import java.util.HashMap;
 import java.util.Map;
