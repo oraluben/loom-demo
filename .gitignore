@@ -162,3 +162,5 @@ hs_err_pid*
 *.iml
 
 *.png
+
+out/

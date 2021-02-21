@@ -13,9 +13,9 @@ def verify_get_loom(java='java'):
     return JAVA_HOME / f'bin/{java}'
 
 
-if __name__ == '__main__':
-    assert run([verify_get_loom('javac'), 'bench/Main.java'], cwd='src').returncode == 0
-    r = run([verify_get_loom('java'), 'bench/Main'], cwd='src', stdout=PIPE)
+def run_plot(start, end, step, title, out):
+    r = run([verify_get_loom('java'), 'bench/Main'] + [str(i) for i in (start, end, step)],
+            cwd='src', stdout=PIPE)
     assert r.returncode == 0
     times = [
         [int(line.split(' ')[0]), int(line.split(' ')[i]), ['vthread', 'thread'][i - 1]]
@@ -25,9 +25,10 @@ if __name__ == '__main__':
     data = pd.DataFrame(times, columns=['iteration', 'time', 'type'])
 
     fig = sns.lmplot(x="iteration", y="time", hue="type", data=data)
-    fig.set(title='thread vs vthread on simple nop loop')
-    # fig.set(
-    #     xscale="log",
-    #     yscale="log"
-    # )
-    fig.savefig('output.png')
+    fig.set(title=title)
+    fig.savefig(out)
+
+
+if __name__ == '__main__':
+    assert run([verify_get_loom('javac'), 'bench/Main.java'], cwd='src').returncode == 0
+    run_plot(100, 10000, 100, 'thread vs vthread on simple nop loop', 'full.png')
