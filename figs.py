@@ -38,17 +38,17 @@ def run_loom_plot(start, end, step, title, out):
 
 
 if __name__ == '__main__':
-    # assert run([verify_get_loom('javac'), 'bench/loom/Main.java'], cwd='src').returncode == 0
-    # run_loom_plot(100, 10000, 100, 'thread vs vthread on simple nop loop', 'loom.png')
-    #
-    # assert run([verify_get_loom('javac'), 'bench/Main.java'], cwd='src').returncode == 0
-    # assert run(['cp', '-r', 'bench', str(SVM_HOME)], cwd='src').returncode == 0
-    # assert run(
-    #     [verify_get_mx(), 'native-image',
-    #      '-H:Optimize=0', '-H:+UseLoom',
-    #      'bench.Main'], cwd=SVM_HOME,
-    #     env={'JAVA_HOME': str(JAVA_HOME.resolve()), 'PATH': os.getenv('PATH')}
-    # ).returncode == 0
+    assert run([verify_get_loom('javac'), 'bench/loom/Main.java'], cwd='src').returncode == 0
+    run_loom_plot(100, 10000, 100, 'thread vs vthread on simple nop loop', 'loom.png')
+
+    assert run([verify_get_loom('javac'), 'bench/Main.java'], cwd='src').returncode == 0
+    assert run(['cp', '-r', 'bench', str(SVM_HOME)], cwd='src').returncode == 0
+    assert run(
+        [verify_get_mx(), 'native-image',
+         '-H:Optimize=0', '-H:+UseLoom',
+         'bench.Main'], cwd=SVM_HOME,
+        env={'JAVA_HOME': str(JAVA_HOME.resolve()), 'PATH': os.getenv('PATH')}
+    ).returncode == 0
 
     # cont
     results = []
@@ -88,26 +88,50 @@ if __name__ == '__main__':
     fig.set(title='nop vthread')
     fig.savefig('vthread.png')
 
-    # # yield depth
-    # results = []
-    # for i in range(1, 15):
-    #     r = run([verify_get_loom('java'), 'bench/Main', 'loom', 'yield-deep-cont', '10000', f'{i}'],
-    #             cwd='src', stdout=PIPE)
-    #     loom_results = r.stdout.decode().strip().split('\n')
-    #
-    #     r = run(['./bench.main', 'svm', 'yield-deep-cont', '10000', f'{i}'],
-    #             cwd=SVM_HOME, stdout=PIPE)
-    #     svm_results = r.stdout.decode().strip().split('\n')
-    #
-    #     results.append(['loom', i, int(loom_results[1])])
-    #     results.append(['svm', i, int(svm_results[1])])
-    #
-    # data = pd.DataFrame(results, columns=['type', 'depth', 'time'])
-    # loom_data = data[data['type'] == 'loom']
-    #
-    # fig = sns.lmplot(x="depth", y="time", hue="type", data=data)
-    # fig.set(title='yield at every level')
-    # fig.savefig('yield.png')
-    # fig = sns.lmplot(x="depth", y="time", hue="type", data=loom_data)
-    # fig.set(title='yield at every level')
-    # fig.savefig('yield-loom.png')
+    # yield cont
+    results = []
+    for i in range(1, 15):
+        r = run([verify_get_loom('java'), 'bench/Main', 'loom', 'yields-cont', '10000', f'{i}'],
+                cwd='src', stdout=PIPE)
+        loom_results = r.stdout.decode().strip().split('\n')
+
+        r = run(['./bench.main', 'svm', 'yields-cont', '10000', f'{i}'],
+                cwd=SVM_HOME, stdout=PIPE)
+        svm_results = r.stdout.decode().strip().split('\n')
+
+        results.append(['loom', i, int(loom_results[1])])
+        results.append(['svm', i, int(svm_results[1])])
+
+    data = pd.DataFrame(results, columns=['type', 'depth', 'time'])
+    loom_data = data[data['type'] == 'loom']
+
+    fig = sns.lmplot(x="depth", y="time", hue="type", data=data)
+    fig.set(title='yield at every level')
+    fig.savefig('yield-cont.png')
+    fig = sns.lmplot(x="depth", y="time", hue="type", data=loom_data)
+    fig.set(title='yield at every level')
+    fig.savefig('yield-cont-loom.png')
+
+    # yield vthread
+    results = []
+    for i in range(1, 15):
+        r = run([verify_get_loom('java'), 'bench/Main', 'loom', 'yields-cont', '10000', f'{i}'],
+                cwd='src', stdout=PIPE)
+        loom_results = r.stdout.decode().strip().split('\n')
+
+        r = run(['./bench.main', 'svm', 'yields-cont', '10000', f'{i}'],
+                cwd=SVM_HOME, stdout=PIPE)
+        svm_results = r.stdout.decode().strip().split('\n')
+
+        results.append(['loom', i, int(loom_results[1])])
+        results.append(['svm', i, int(svm_results[1])])
+
+    data = pd.DataFrame(results, columns=['type', 'depth', 'time'])
+    loom_data = data[data['type'] == 'loom']
+
+    fig = sns.lmplot(x="depth", y="time", hue="type", data=data)
+    fig.set(title='yield at every level')
+    fig.savefig('yield-vthread.png')
+    fig = sns.lmplot(x="depth", y="time", hue="type", data=loom_data)
+    fig.set(title='yield at every level')
+    fig.savefig('yield-vthread-loom.png')

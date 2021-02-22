@@ -45,6 +45,14 @@ public class Main {
                 if (warmup) runYieldsCont(20000, 10);
                 System.out.println(runYieldsCont(Integer.parseInt(args[2]), Integer.parseInt(args[3])));
             }
+            case "yield-deep-vthread" -> {
+                if (warmup) runYieldDeepVThread(20000, 10);
+                System.out.println(runYieldDeepVThread(Integer.parseInt(args[2]), Integer.parseInt(args[3])));
+            }
+            case "yields-vthread" -> {
+                if (warmup) runYieldsVThread(20000, 10);
+                System.out.println(runYieldsVThread(Integer.parseInt(args[2]), Integer.parseInt(args[3])));
+            }
             default -> System.out.println("unsupported bench: " + args[0] + ".");
         }
     }
@@ -118,6 +126,24 @@ public class Main {
             cont = Yielder.continuation(2, depth, true);
             while (!cont.isDone())
                 cont.run();
+        }
+
+        return (System.nanoTime() - tStart) / i;
+    }
+
+    private static long runYieldDeepVThread(int i, int depth) throws InterruptedException {
+        long tStart = System.nanoTime();
+        for (int j = 0; j < i; j++) {
+            Thread.builder().virtual().task(new Yielder(2, depth, false)).start().join();
+        }
+
+        return (System.nanoTime() - tStart) / i;
+    }
+
+    private static long runYieldsVThread(int i, int depth) throws InterruptedException {
+        long tStart = System.nanoTime();
+        for (int j = 0; j < i; j++) {
+            Thread.builder().virtual().task(new Yielder(2, depth, true)).start().join();
         }
 
         return (System.nanoTime() - tStart) / i;
