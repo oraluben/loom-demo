@@ -161,6 +161,4 @@ hs_err_pid*
 .idea
 *.iml
 
-*.png
-
 out/
